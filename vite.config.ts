@@ -1,34 +1,24 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import {defineConfig, loadEnv} from 'vite';
 
-async function test() {
-  const apiKey = process.env.JOTFORM_API_KEY;
-  if (!apiKey) {
-    console.log('STATUS: FAILED - JOTFORM_API_KEY is missing.');
-    return;
-  }
-  
-  const endpoints = [
-    'https://api.jotform.com/user/forms',
-    'https://eu-api.jotform.com/user/forms'
-  ];
-
-  for (const url of endpoints) {
-    console.log(`TESTING ENDPOINT: ${url}`);
-    try {
-      const response = await axios.get(url, {
-        params: { apiKey, limit: 50 },
-        timeout: 5000
-      });
-      console.log(`STATUS: SUCCESS for ${url}`);
-      const forms = response.data.content || [];
-      console.log(`FORMS_FOUND: ${forms.length}`);
-    } catch (error: any) {
-      console.log(`STATUS: FAILED for ${url} - Error: ${error.response?.data?.message || error.message}`);
-    }
-  }
-  console.log('CRITICAL: All form fetch endpoints failed.');
-}
-
-test();
+export default defineConfig(({mode}) => {
+  const env = loadEnv(mode, '.', '');
+  return {
+    plugins: [react(), tailwindcss()],
+    define: {
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
+      },
+    },
+    server: {
+      // HMR is disabled in AI Studio via DISABLE_HMR env var.
+      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      hmr: process.env.DISABLE_HMR !== 'true',
+    },
+  };
+});

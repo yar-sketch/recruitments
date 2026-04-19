@@ -1,20 +1,34 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 
-# Run and deploy your AI Studio app
+async function test() {
+  const apiKey = process.env.JOTFORM_API_KEY;
+  if (!apiKey) {
+    console.log('STATUS: FAILED - JOTFORM_API_KEY is missing.');
+    return;
+  }
+  
+  const endpoints = [
+    'https://api.jotform.com/user/forms',
+    'https://eu-api.jotform.com/user/forms'
+  ];
 
-This contains everything you need to run your app locally.
+  for (const url of endpoints) {
+    console.log(`TESTING ENDPOINT: ${url}`);
+    try {
+      const response = await axios.get(url, {
+        params: { apiKey, limit: 50 },
+        timeout: 5000
+      });
+      console.log(`STATUS: SUCCESS for ${url}`);
+      const forms = response.data.content || [];
+      console.log(`FORMS_FOUND: ${forms.length}`);
+    } catch (error: any) {
+      console.log(`STATUS: FAILED for ${url} - Error: ${error.response?.data?.message || error.message}`);
+    }
+  }
+  console.log('CRITICAL: All form fetch endpoints failed.');
+}
 
-View your app in AI Studio: https://ai.studio/apps/8e375351-7b6d-4ab9-8144-4ebb9e14e75b
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+test();
