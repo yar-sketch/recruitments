@@ -1,8 +1,6 @@
-node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
-!.env.example
+{
+  "name": "Booster Recruitment Database",
+  "description": "A recruitment dashboard synced with Jotform to manage and track booster applications with real-time status updates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
